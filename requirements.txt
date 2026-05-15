@@ -6,3 +6,4 @@ pydantic
 httpx
 typing-extensions
 python-multipart
+requests
