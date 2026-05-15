@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+gunicorn
+sqlalchemy
+pydantic
+httpx
+typing-extensions
+python-multipart
