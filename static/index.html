@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Recipe App - Кулинарный помощник</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍳 Food Recipe App</h1>
+            <p>Кулинарный помощник - готовим из того, что есть в холодильнике!</p>
+        </header>
+
+        <!-- Вкладки -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('users')">👤 Пользователи</button>
+            <button class="tab-button" onclick="showTab('products')">📦 Продукты</button>
+            <button class="tab-button" onclick="showTab('recipes')">📖 Рецепты</button>
+            <button class="tab-button" onclick="showTab('fridge')">🧊 Холодильник</button>
+            <button class="tab-button" onclick="showTab('search')">🔍 Поиск рецептов</button>
+            <button class="tab-button" onclick="showTab('import')">🍽️ Импорт рецептов</button>
+            <button class="tab-button" onclick="showTab('favorites')">❤️ Избранное</button>
+        </div>
+
+        <!-- Вкладка: Пользователи -->
+        <div id="users-tab" class="tab-content active">
+            <h2>👤 Пользователи</h2>
+            <div class="card">
+                <h3>Регистрация / Вход</h3>
+                <input type="text" id="username" placeholder="Имя пользователя">
+                <button onclick="registerUser()">Зарегистрироваться</button>
+                <button onclick="loginUser()">Войти</button>
+                <div id="user-result" class="result"></div>
+            </div>
+            <div class="card">
+                <h3>Текущий пользователь</h3>
+                <div id="current-user">Не выбран</div>
+                <button onclick="clearUser()">Выйти</button>
+            </div>
+        </div>
+
+        <!-- Вкладка: Продукты (с ценой и КБЖУ) -->
+        <div id="products-tab" class="tab-content">
+            <h2>📦 Продукты</h2>
+            <div class="card">
+                <h3>Добавить продукт</h3>
+                <input type="text" id="product-name" placeholder="Название продукта">
+                <input type="text" id="product-category" placeholder="Категория">
+                <input type="number" id="product-price" placeholder="Цена за ед." step="0.01">
+                <input type="text" id="product-base-unit" placeholder="Базовая единица (кг, 100г, шт)" value="100g">
+                <input type="number" id="product-calories" placeholder="Калории (на ед.)" step="0.1">
+                <input type="number" id="product-protein" placeholder="Белки" step="0.1">
+                <input type="number" id="product-fat" placeholder="Жиры" step="0.1">
+                <input type="number" id="product-carbs" placeholder="Углеводы" step="0.1">
+                <button onclick="addProduct()">Добавить</button>
+            </div>
+            <div class="card">
+                <h3>Список продуктов</h3>
+                <button onclick="loadProducts()">Обновить список</button>
+                <div id="products-list"></div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Рецепты (с фото и импортом) -->
+        <div id="recipes-tab" class="tab-content">
+            <h2>📖 Рецепты</h2>
+            <div class="card">
+                <h3>Добавить рецепт вручную</h3>
+                <input type="text" id="recipe-name" placeholder="Название рецепта">
+                <textarea id="recipe-description" placeholder="Описание"></textarea>
+                <textarea id="recipe-instructions" placeholder="Инструкция по приготовлению"></textarea>
+                <input type="text" id="recipe-image-url" placeholder="URL фото (необязательно)">
+                <h4>Ингредиенты:</h4>
+                <div id="ingredients-list"></div>
+                <button onclick="addIngredientField()">+ Добавить ингредиент</button>
+                <button onclick="saveRecipe()">Сохранить рецепт</button>
+            </div>
+
+            <div class="card">
+                <h3>Импорт рецепта из TheMealDB</h3>
+                <input type="text" id="import-meal-name" placeholder="Название блюда (например, pasta)">
+                <button onclick="importFromMealDB()">Импортировать</button>
+            </div>
+
+            <div class="card">
+                <h3>Список рецептов</h3>
+                <button onclick="loadRecipes()">Обновить список</button>
+                <div id="recipes-list"></div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Холодильник -->
+        <div id="fridge-tab" class="tab-content">
+            <h2>🧊 Мой холодильник</h2>
+            <div class="card">
+                <h3>Добавить продукт в холодильник</h3>
+                <select id="fridge-product">
+                    <option value="">Выберите продукт</option>
+                </select>
+                <input type="number" id="fridge-quantity" placeholder="Количество" value="1">
+                <input type="text" id="fridge-unit" placeholder="Единица измерения (шт, кг, г, мл)" value="шт">
+                <button onclick="addToFridge()">Добавить</button>
+            </div>
+            <div class="card">
+                <h3>Содержимое холодильника</h3>
+                <button onclick="loadFridge()">Обновить</button>
+                <div id="fridge-contents"></div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Поиск рецептов (с сортировкой) -->
+        <div id="search-tab" class="tab-content">
+            <h2>🔍 Что можно приготовить?</h2>
+            <div class="card">
+                <h3>Поиск рецептов по продуктам из холодильника</h3>
+                <label>Сортировать:</label>
+                <select id="sort-by">
+                    <option value="none">По умолчанию</option>
+                    <option value="calories">По калориям</option>
+                    <option value="price">По цене блюда</option>
+                </select>
+                <select id="sort-order">
+                    <option value="asc">По возрастанию</option>
+                    <option value="desc">По убыванию</option>
+                </select>
+                <button onclick="searchRecipes()">Найти рецепты</button>
+                <div id="search-results"></div>
+            </div>
+        </div>
+        <!-- Вкладка: Импорт рецептов -->
+        <div id="import-tab" class="tab-content">
+            <h2>🍽️ Импорт рецептов с TheMealDB</h2>
+            <div class="card">
+                <h3>Поиск по категориям</h3>
+                <select id="category-select">
+                    <option value="">Выберите категорию</option>
+                </select>
+                <button onclick="loadMealsByCategory()">Показать рецепты</button>
+                <div id="meals-list"></div>
+            </div>
+            <div class="card">
+                <h3>Импорт по ID</h3>
+                <input type="text" id="meal-id-input" placeholder="Введите ID рецепта (например, 52772)">
+                <button onclick="importMealById()">Импортировать по ID</button>
+                <div id="import-result"></div>
+            </div>
+        </div>
+        <div id="favorites-tab" class="tab-content">
+            <h2>❤️ Любимые рецепты</h2>
+            <div class="card">
+                <button onclick="loadFavoritesRecipes()">Обновить</button>
+                <div id="favorites-list"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/static/script.js?v=2"></script>
+</body>
+</html>
